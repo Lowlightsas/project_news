@@ -1,0 +1,204 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html class="no-js">
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>{% block title %}Главная{% endblock %}</title>   
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'css/basic.css' %}">
+    <!-- google fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Raleway:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- fontawesome -->
+    <script src="https://kit.fontawesome.com/dbed6b6114.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    {% block header %}
+    <header>
+        <div class = "navigation-container">
+            <div class = "top-head">
+                <div class = "web-name">
+                    <h1>NEWS</h1>
+                </div>
+
+                <div class = "ham-btn">
+                    <span>
+                        <i class = "fas fa-bars"></i>
+                    </span>
+                </div>
+
+                <div class = "times-btn">
+                    <span>
+                        <i class = "fas fa-times"></i>
+                    </span>
+                </div>
+            </div>
+
+            <!-- nav bar -->
+
+            <div class = "nav-bar" id = "nav-bar">
+                <nav>
+                    <ul>
+                        <li><a href = "{%url "news:base"%}">home</a></li>
+                    
+                        <li><a href = "{%url "news:news_list"%}" >category</a></li>
+                        {%if request.user.is_authenticated %}
+                        <li><a href="{% url "account:profile" %}">profile</a></li>
+                        <li><a href="{% url "account:logout" %}">logout</a></li>
+                        {%else%}
+                        <li><a href="{%url "account:login"%}">login</a></li>
+                        {%endif%}
+
+                    </ul>
+                </nav>
+            </div>
+
+            <!--social icons -->
+            <div class = "social-icons">
+                <ul>
+                    <li>
+                        <a href= "#"><i class = "fab fa-facebook"></i></a>
+                    </li>
+                    <li>
+                        <a href= "#"><i class = "fab fa-twitter"></i></a>
+                    </li>
+                    <li>
+                        <a href= "#"><i class = "fab fa-instagram"></i></a>
+                    </li>
+                    <li>
+                        <a href= "https://www.youtube.com/@TengrinewsTVKZ"><i class = "fab fa-youtube"></i></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+    {% endblock %}
+
+    {% block content %}   
+    <section class = "banner">
+        <div class = "banner-main-content">
+            <h2>GET THE WORLD'S LATEST TECH NEWS</h2>
+            <h3>World's Leading Tech News Portal</h3>   
+            <div class = "current-news-head">
+                {% for news in latest_news %}
+                <h3>{{ news.title }} <span>{{news.author}}</span></h3>
+                <button>
+                    <a href="{% url 'news:news_detail' news.id %}">Know More</a>
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class = "banner-sub-content">
+            {% for news in all_news %}
+            <div class = "hot-topic">
+                {% with news.attachments.first as attachment %}
+                {% if attachment and attachment.photo %}
+                <img src="{{ attachment.photo.url }}" alt="{{ attachment.caption }}">
+                {%endif%}
+                <div class = "hot-topic-content">
+                    <h2>{{news.title}}</h2>
+                    <p>{{ news.text|truncatewords:20 }}</p>
+                    <a  href="{% url 'news:news_detail' news.id %}">Read More</a>
+                </div>
+            </div>
+            {% endwith %}
+            {%endfor%}
+           
+        </div>
+    </section>
+    
+    <hr>
+
+    <main>
+        <section class = "main-container-left">
+            <h2>Top Stories</h2>
+            
+            <div class = "container-top-left">
+                {% for news in latest_news %}
+                {% with news.attachments.first as attachment %}
+                {% if attachment and attachment.photo %}
+                <article>
+                    <img src="{{ attachment.photo.url }}">
+
+                    <div>
+                        <h3>{{news.title}}</h3>
+
+                        <p>{{ news.text|truncatewords:20 }}</p>
+
+                        <ahref="{% url 'news:news_detail' news.id %}">Read More <span>>></span></a>
+                    </div>
+                </article>
+                {%endif%}
+                {% endwith %}
+                {%endfor%}
+            </div>
+            <div class = "container-bottom-left">
+                {% for news in latest_news %}
+                {% with news.attachments.first as attachment %}
+                {% if attachment and attachment.photo %}
+                <article>
+                    <img src="{{ attachment.photo.url }}">
+                    <div>
+                        <h3>{{news.title}}</h3>
+                        <p>{{ news.text|truncatewords:20 }}</p>
+
+                        <a href="{% url 'news:news_detail' news.id %}">Read More <span>>></span></a>
+                    </div>
+                </article>
+                {%endif%}
+                {% endwith %}
+                {%endfor%}
+
+              
+            </div>
+        </section>
+
+        <section class = "main-container-right">
+            <h2>Latest Stories</h2>
+            {% for news in latest_news %}
+            {% with news.attachments.first as attachment %}
+            {% if attachment and attachment.photo %}
+            <article>
+                <h4>just in </h4>
+                <div>
+                    <h2>{{news.title}}</h2>
+
+                    <p>{{ news.text|truncatewords:20 }}</p>
+
+                    <a href="{% url 'news:news_detail' news.id %}">Read More <span>>></span></a>
+                </div>
+                <img src="{{ attachment.photo.url }}">
+            </article>
+            {%endif%}
+            {% endwith %}
+            {%endfor%}
+           
+        </section>
+    </main>{% endblock %}
+
+    {% block footer %}
+    <footer>
+        <div class="footer-container">
+            <div class="footer-left">
+                <h2>NEWS</h2>
+                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Consequatur molestias aut blanditiis totam quia enim, autem tenetur cum facere, fugit beatae at voluptas ipsum perferendis!</p>
+            </div>
+
+            
+        </div>
+
+        <p>Copyright &copy; 2025</p>
+    </footer>
+    {% endblock %}
+
+    <script src="{% static 'js/script.js' %}" async defer></script>
+    
+</body>
+</html>

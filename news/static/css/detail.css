@@ -1,0 +1,9 @@
+.center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh; /* Убедитесь, что занимает всю высоту экрана */
+    text-align: center;
+    flex-direction: column; /* Сохранить текущую структуру контента */
+  }
+  

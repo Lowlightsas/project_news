@@ -1,0 +1,262 @@
+{% extends "news/base.html" %}
+
+{% block title %}{{ news.title }}{% endblock %}
+{% block content %}
+<!-- Your custom content for the detail page goes here -->
+{% load bootstrap5 %}
+{% bootstrap_css %}
+{% bootstrap_javascript %}
+<style>
+    .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh; /* Убедитесь, что занимает всю высоту экрана */
+        text-align: center;
+        flex-direction: column; /* Сохранить текущую структуру контента */
+      }
+      #intro {
+        /* Margin to fix overlapping fixed navbar */
+        margin-top: 58px;
+      }
+
+      @media (max-width: 991px) {
+        #intro {
+          /* Margin to fix overlapping fixed navbar */
+          margin-top: 45px;
+        }
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 150px;
+        height: 45px;
+        font-size: 16px;
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .btn i {
+        margin-right: 5px;
+    }
+
+    .btn:hover {
+        transform: scale(1.05);
+        transition: transform 0.2s;
+    }
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+<p style="color:white">
+
+  ///
+  ////
+</p>
+<main class="center">
+    <div class="container">
+      <!--Grid row-->
+      <div class="row">
+        <!--Grid column-->
+        <div class="col-md-8 mb-4">
+          <!--Section: Post data-mdb-->
+          <section class="border-bottom mb-4">
+            <p>
+
+                <h1>{{ news.title }}</h1>
+                
+            </p>
+            {% with news.attachments.first as attachment %}
+            {% if attachment and attachment.photo %}
+
+            <img src="{{ attachment.photo.url }}" class="img-fluid shadow-1-strong rounded mb-4"
+            alt="{{ attachment.caption }}" />
+            {%endif%}
+            {%endwith%}
+           
+            <div class="row align-items-center mb-4">
+              <div class="col-lg-6 text-center text-lg-start mb-3 m-lg-0">
+               
+                <span> Published <u>{{news.publish}}</u> by</span>
+                <a href="" class="text-dark">{{news.author}}</a>
+              </div>
+
+            
+            </div>
+            <p><strong>Views:</strong> 
+              <span class="badge bg-success">
+                  <i class="fas fa-eye"></i> {{ views }}
+              </span>
+           </p>
+           
+          </section>
+          <!--Section: Post data-mdb-->
+
+          <!--Section: Text-->
+          <section>
+            <p>
+                {{ news.text|linebreaks }}
+            </p>
+            
+
+          </section>
+          <!--Section: Text-->
+
+
+          <section class="text-center border-top border-bottom py-4 mb-4">
+            <p><strong>Share with your friends:</strong></p>
+        
+            <!-- Telegram -->
+            <a 
+              href="https://t.me/share/url?url={{ request.build_absolute_uri|urlencode }}" 
+              class="btn btn-primary me-1" 
+              target="_blank" 
+              style="background-color: #0088cc;">
+              <i class="fab fa-telegram"></i> Telegram
+            </a>
+        
+            <!-- WhatsApp -->
+            <a 
+              href="https://api.whatsapp.com/send?text={{ news.title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" 
+              class="btn btn-success me-1" 
+              target="_blank" 
+              style="background-color: #25d366;">
+              <i class="fab fa-whatsapp"></i> WhatsApp
+            </a>
+        
+            <!-- Copy Link -->
+            <button 
+              class="btn btn-secondary me-1" 
+              id="copyLinkButton" 
+              data-url="{{ request.build_absolute_uri }}"
+              style="background-color: #6c757d;">
+              <i class="fas fa-link"></i> Copy Link
+            </button>
+        </section>
+        
+        
+
+        
+        
+          <!--Section: Share buttons-->
+
+          <!--Section: Author-->
+        
+          <!--Section: Author-->
+
+          <!--Section: Comments-->
+          <section class="border-bottom mb-3">
+            <p class="text-center display-6"><strong>Get the World's Latest Tech News</strong></p>
+        
+            <!-- Display Comments -->
+            {% if comments %}
+                {% for comment in comments %}
+                <div class="row mb-4">
+                    <div class="col-2">
+                        <!-- Отображаем фотографию автора комментария -->
+                        <img src="{{ comment.author.profile.photo.url }}" 
+                             class="img-fluid shadow-1-strong rounded-circle border border-2" 
+                             alt="Avatar" />
+                    </div>
+                    <div class="col-10">
+                        <div class="card shadow-sm">
+                            <div class="card-header bg-primary text-white">
+                                <strong>{{ comment.author }}</strong>
+                                <span class="float-end">{{ comment.created|date:"F j, Y, g:i a" }}</span>
+                            </div>
+                            <div class="card-body">
+                                <p class="card-text">{{ comment.body }}</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="text-center text-muted">No comments yet. Be the first to leave a reply!</p>
+            {% endif %}
+        </section>
+        
+        <!-- Reply Section -->
+        <section class="mt-5">
+          
+          
+          <form action="{% url 'news:news_comment' news.id %}" method="post" class="card shadow-sm p-4">
+              {% csrf_token %}
+              
+              <!-- Заголовок формы -->
+              <h4 class="text-center mb-3">Add Your Comment</h4>
+              
+              <!-- Поле комментария -->
+              <div class="mb-3">
+                  <label for="{{ form.body.id_for_label }}" class="form-label">Your Comment</label>
+                  <textarea id="{{ form.body.id_for_label }}" name="{{ form.body.name }}" class="form-control" placeholder="Write your comment here..." rows="4">{{ form.body.value }}</textarea>
+              </div>
+              
+              <!-- Кнопка отправки -->
+              <div class="d-flex justify-content-end">
+                  <button type="submit" class="btn btn-outline-success btn-sm px-4">Publish</button>
+              </div>
+          </form>
+      </section>
+      
+        
+
+        <!--Grid column-->
+      </div>
+
+
+
+        <!--Grid column-->
+        <div class="col-md-4 mb-4">
+          <section class="text-center" style="top: 80px;">
+            {% for news in latest_news %}
+              <div class="card mb-4">
+                {% with news.attachments.first as attachment %}
+                {% if attachment and attachment.photo %}
+                  <div class="bg-image hover-overlay" data-mdb-ripple-init>
+                    <img
+                      src="{{ attachment.photo.url }}"
+                      class="img-fluid" alt="Tengrinews Image"
+                      style="max-height: 200px; object-fit: cover; width: 100%;" />
+                  </div>
+                {% endif %}
+                {% endwith %}
+                <div class="card-body">
+                  <h5 class="card-title">{{ news.title }}</h5>
+                  <p class="card-text">{{ news.text|truncatewords:20 }}</p>
+                  <a href="{% url 'news:news_detail' news.id %}" target="_blank" 
+                     class="btn btn-primary">
+                    Read More<i class="fas fa-external-link-alt ms-2"></i>
+                  </a>
+                </div>
+              </div>
+            {% endfor %}
+          </section>
+        </div>
+        
+          
+        <!--Grid column-->
+      </div>
+      <!--Grid row-->
+    </div>
+  </main>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/mdb-ui-kit/3.11.0/mdb.min.js"></script>
+          <!-- JS для копирования ссылки -->
+          <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const copyButton = document.getElementById('copyLinkButton');
+        
+                copyButton.addEventListener('click', () => {
+                    // Берем ссылку из атрибута data-url
+                    const url = copyButton.getAttribute('data-url');
+        
+                    // Копируем ссылку с использованием Clipboard API
+                    navigator.clipboard.writeText(url).then(() => {
+                        alert('Link copied to clipboard!');
+                    }).catch(err => {
+                        console.error('Failed to copy link: ', err);
+                        alert('Failed to copy the link. Please try again.');
+                    });
+                });
+            });
+        </script>
+{% endblock %}
